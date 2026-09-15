@@ -1,0 +1,7 @@
+// A code block after an abstract role is not a paragraph
+= Topic title
+
+[role="_abstract"]
+....
+This is not a short description.
+....

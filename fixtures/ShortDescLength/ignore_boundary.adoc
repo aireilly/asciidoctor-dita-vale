@@ -1,0 +1,5 @@
+// A short description with exactly 50 characters
+= Topic title
+
+[role="_abstract"]
+This short description has fifty characters total.

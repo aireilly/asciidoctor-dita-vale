@@ -1,0 +1,80 @@
+# Report short descriptions that are shorter than 50 or longer than 300
+# characters.
+#
+# Short descriptions are paragraphs marked with the [role="_abstract"]
+# attribute list. Count wrapped lines as a single paragraph.
+---
+extends: script
+message: "Short descriptions must be between 50 and 300 characters."
+level: warning
+link: https://github.com/jhradilek/asciidoctor-dita-vale/blob/main/README.md#warnings
+scope: raw
+script: |
+  text            := import("text")
+  matches         := []
+
+  min_length      := 50
+  max_length      := 300
+
+  r_abstract      := text.re_compile("^\\[role=\"_abstract\"\\][ \\t]*$")
+  r_empty         := text.re_compile("^[ \\t]*$")
+  r_non_paragraph := text.re_compile("^(?://.*|\\.{4,}[ \\t]*|-{4,}[ \\t]*|={4,}[ \\t]*|\\*{4,}[ \\t]*|\\[[^\\]]*\\][ \\t]*)$")
+
+  // Report whether the line is a paragraph.
+  is_text := func(line) {
+    return !r_empty.match(line) && !r_non_paragraph.match(line)
+  }
+
+  // Report whether the collected paragraph violates the length limits.
+  is_invalid := func(paragraph) {
+    length := len(text.trim_space(paragraph))
+    return length < min_length || length > max_length
+  }
+
+  // Append an empty line so that the loop also closes a paragraph that ends
+  // the document.
+  document := append(text.split(text.trim_suffix(scope, "\n"), "\n"), "")
+
+  expect_paragraph := false
+  in_paragraph     := false
+  paragraph        := ""
+  paragraph_start  := 0
+  paragraph_end    := 0
+  offset           := 0
+
+  for line in document {
+    line_start := offset
+    offset     += len(line) + 1
+    line_end   := offset - 1
+
+    if in_paragraph {
+      if is_text(line) {
+        paragraph     += " " + text.trim_space(line)
+        paragraph_end = line_end
+        continue
+      }
+
+      if is_invalid(paragraph) {
+        matches = append(matches, {begin: paragraph_start, end: paragraph_end})
+      }
+
+      in_paragraph = false
+    }
+
+    if expect_paragraph {
+      expect_paragraph = false
+
+      if is_text(line) {
+        paragraph       = text.trim_space(line)
+        paragraph_start = line_start
+        paragraph_end   = line_end
+        in_paragraph    = true
+      }
+
+      continue
+    }
+
+    if r_abstract.match(line) {
+      expect_paragraph = true
+    }
+  }

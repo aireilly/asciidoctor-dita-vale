@@ -1,0 +1,5 @@
+// A short description with more than 300 characters
+= Topic title
+
+[role="_abstract"]
+This short description is deliberately long so that it exceeds the maximum character length. It contains additional information that belongs in the body of the topic instead of in the short description, including details about configuration, operation, troubleshooting, and the expected result for the reader.

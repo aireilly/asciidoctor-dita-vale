@@ -1,0 +1,6 @@
+// Wrapped lines count as one paragraph
+= Topic title
+
+[role="_abstract"]
+This short description is wrapped across multiple lines so that the rule
+counts the complete paragraph rather than checking each source line alone.
